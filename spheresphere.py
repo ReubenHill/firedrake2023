@@ -14,11 +14,8 @@ f_src = Function(V_src).interpolate(expr_src)
 # 3
 dest_mesh = UnitIcosahedralSphereMesh(1, name="dest_sphere")
 
-# 4
-V_dest = FunctionSpace(dest_mesh, "CG", 2)
-f_dest = Function(V_dest).interpolate(f_src)
-
 # 5 and 6
+V_dest = FunctionSpace(dest_mesh, "CG", 2)
 V_dest_vec = VectorFunctionSpace(dest_mesh, V_dest.ufl_element())
 f_dest_node_coords = interpolate(dest_mesh.coordinates, V_dest_vec)
 dest_node_coords = f_dest_node_coords.dat.data_ro
@@ -40,6 +37,9 @@ f_vom_i_o = Function(P0DG_vom_i_o).interpolate(f_vom)
 # 9
 f_dest_2 = Function(V_dest)
 f_dest_2.dat.data_wo[:] = f_vom_i_o.dat.data_ro[:]
+
+# 4
+f_dest = Function(V_dest).interpolate(f_src)
 assert np.array_equal(f_dest_2.dat.data_ro, f_vom_i_o.dat.data_ro)
 
 # Plot 1
@@ -62,13 +62,6 @@ ax_dest_mesh = fig_dest_mesh.add_subplot(projection='3d')
 ax_dest_mesh.set_title("Destination Mesh")
 dest_mesh_plt = triplot(dest_mesh, axes=ax_dest_mesh)
 fig_dest_mesh.savefig("3_dest_mesh.svg")
-
-# Plot 4
-fig_dest_func = plt.figure()
-ax_dest_func = fig_dest_func.add_subplot(projection='3d')
-ax_dest_func.set_title("Destination Function")
-f_dest_plot = trisurf(f_dest, axes=ax_dest_func)
-fig_dest_func.savefig("4_f_dest.svg")
 
 # Plot 5
 ax_dest_mesh.set_title("Destination Mesh with Source Node Locations")
@@ -97,8 +90,15 @@ dest_node_coords_point_evals_in_dest_mesh_plot = ax_dest_mesh.scatter3D(vom_i_o_
 fig_dest_mesh.savefig("8_dest_mesh_w_f_vom_i_o.svg")
 
 # Plot 9
-f_dest_plot.visible = False
-f_dest_2_plot = trisurf(f_dest_2, axes=ax_dest_func)
+fig_dest_func = plt.figure()
+ax_dest_func = fig_dest_func.add_subplot(projection='3d')
+ax_dest_func.set_title("Destination Function")
+f_dest_plot = trisurf(f_dest_2, axes=ax_dest_func)
 fig_dest_func.savefig("9_f_dest_2.svg")
+
+# Plot 4
+f_dest_plot.visible = False
+f_dest_plot_2 = trisurf(f_dest, axes=ax_dest_func)
+fig_dest_func.savefig("4_f_dest.svg")
 
 # plt.show()
