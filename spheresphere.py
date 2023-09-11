@@ -3,16 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 1
-src_mesh = UnitCubedSphereMesh(1, name="src_sphere")
+src_mesh = UnitCubedSphereMesh(1)
 
 # 2
-V_src = FunctionSpace(src_mesh, "S", 2)
+V_src = FunctionSpace(src_mesh, "S", 2)  # "S" only valid for quadrilateral cells
 x_src, y_src, z_src = SpatialCoordinate(src_mesh)
 expr_src = x_src + y_src + z_src
 f_src = Function(V_src).interpolate(expr_src)
 
 # 3
-dest_mesh = UnitIcosahedralSphereMesh(1, name="dest_sphere")
+dest_mesh = UnitIcosahedralSphereMesh(1)
 
 # 4 and 5
 V_dest = FunctionSpace(dest_mesh, "CG", 2)
@@ -31,8 +31,9 @@ P0DG_vom = FunctionSpace(vom_dest_node_coords_in_src_mesh, "DG", 0)
 f_vom = Function(P0DG_vom).interpolate(f_src)
 
 # 7
-P0DG_vom_i_o = FunctionSpace(vom_dest_node_coords_in_src_mesh.input_ordering, "DG", 0)
-f_vom_i_o = Function(P0DG_vom_i_o).interpolate(f_vom)
+vom_i_o = vom_dest_node_coords_in_src_mesh.input_ordering  # New and important!
+P0DG_vom_i_o = FunctionSpace(vom_i_o, "DG", 0)
+f_vom_i_o = Function(P0DG_vom_i_o).interpolate(f_vom)  # PETSc SF reduce operation
 
 # 8
 f_dest_2 = Function(V_dest)
@@ -78,7 +79,7 @@ fig_src_func.savefig("5_f_src_w_dest_nodes.svg")
 
 # Plot 6
 ax_src_func.set_title(
-    "Source Function with Point Evaluations at Destination Node Locations"
+    "Source Function with Point Evaluations \nat Destination Node Locations"
 )
 dest_node_coords_in_f_src_plot.visible = False
 vom_coords = vom_dest_node_coords_in_src_mesh.coordinates.dat.data_ro
