@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 src_mesh = UnitCubedSphereMesh(1, name="src_sphere")
 
 # 2
-dest_mesh = UnitIcosahedralSphereMesh(1, name="dest_sphere")
-
-# 3
 V_src = FunctionSpace(src_mesh, "S", 2)
 x_src, y_src, z_src = SpatialCoordinate(src_mesh)
 expr_src = x_src + y_src + z_src
 f_src = Function(V_src).interpolate(expr_src)
+
+# 3
+dest_mesh = UnitIcosahedralSphereMesh(1, name="dest_sphere")
 
 # 4
 V_dest = FunctionSpace(dest_mesh, "CG", 2)
@@ -50,18 +50,18 @@ src_mesh_plt = triplot(src_mesh, axes=ax_src_mesh)
 fig_src_mesh.savefig("1_src_mesh.svg")
 
 # Plot 2
-fig_dest_mesh = plt.figure()
-ax_dest_mesh = fig_dest_mesh.add_subplot(projection='3d')
-ax_dest_mesh.set_title("Destination Mesh")
-dest_mesh_plt = triplot(dest_mesh, axes=ax_dest_mesh)
-fig_dest_mesh.savefig("2_dest_mesh.svg")
-
-# Plot 3
 fig_src_func = plt.figure()
 ax_src_func = fig_src_func.add_subplot(projection='3d')
 ax_src_func.set_title("Source Function")
 f_src_plot = trisurf(f_src, axes=ax_src_func)
-fig_src_func.savefig("3_f_src.svg")
+fig_src_func.savefig("2_f_src.svg")
+
+# Plot 3
+fig_dest_mesh = plt.figure()
+ax_dest_mesh = fig_dest_mesh.add_subplot(projection='3d')
+ax_dest_mesh.set_title("Destination Mesh")
+dest_mesh_plt = triplot(dest_mesh, axes=ax_dest_mesh)
+fig_dest_mesh.savefig("3_dest_mesh.svg")
 
 # Plot 4
 fig_dest_func = plt.figure()
