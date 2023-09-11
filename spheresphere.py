@@ -1,4 +1,5 @@
 from firedrake import *
+import numpy as np
 import matplotlib.pyplot as plt
 
 fig_src_mesh = plt.figure()
@@ -23,12 +24,12 @@ V_dest = FunctionSpace(dest_mesh, "CG", 2)
 
 x_src, y_src, z_src = SpatialCoordinate(src_mesh)
 expr_src = x_src + y_src + z_src
+f_src = Function(V_src).interpolate(expr_src)
 
 fig_src_func = plt.figure()
 ax_src_func = fig_src_func.add_subplot(projection='3d')
 ax_src_func.set_title("Source Function")
 
-f_src = Function(V_src).interpolate(expr_src)
 f_src_plot = trisurf(f_src, axes=ax_src_func)
 fig_src_func.savefig("3_f_src.svg")
 
@@ -40,9 +41,10 @@ f_dest = Function(V_dest).interpolate(f_src)
 f_dest_plot = trisurf(f_dest, axes=ax_dest_func)
 fig_dest_func.savefig("4_f_dest.svg")
 
-ax_dest_mesh.set_title("Destination Mesh with Source Node Locations")
 V_dest_vec = VectorFunctionSpace(dest_mesh, V_dest.ufl_element())
 f_dest_node_coords = interpolate(dest_mesh.coordinates, V_dest_vec)
+
+ax_dest_mesh.set_title("Destination Mesh with Source Node Locations")
 dest_node_coords = f_dest_node_coords.dat.data_ro
 dest_node_coords_in_dest_mesh_plot = ax_dest_mesh.scatter3D(dest_node_coords[:, 0], dest_node_coords[:, 1], dest_node_coords[:, 2], c='b')
 fig_dest_mesh.savefig("5_dest_mesh_w_src_nodes.svg")
@@ -66,8 +68,25 @@ ax_src_func.set_title("Source Function with Point Evaluations at Source Node Loc
 dest_node_coords_in_f_src_plot.visible = False
 vom_coords = vom_dest_node_coords_in_src_mesh.coordinates.dat.data_ro
 f_vom_vals = f_vom.dat.data_ro
-ax_src_func.scatter3D(vom_coords[:, 0], vom_coords[:, 1], vom_coords[:, 2], c=f_vom_vals)
+dest_node_coords_point_evals_in_f_src_plot = ax_src_func.scatter3D(vom_coords[:, 0], vom_coords[:, 1], vom_coords[:, 2], c=f_vom_vals)
 fig_src_func.savefig("7_f_src_and_f_vom.svg")
 
-# plt.show()
+P0DG_vom_i_o = FunctionSpace(vom_dest_node_coords_in_src_mesh.input_ordering, "DG", 0)
 
+f_vom_i_o = Function(P0DG_vom_i_o).interpolate(f_vom)
+
+ax_dest_mesh.set_title("Destination Mesh with Point Evaluations of Source Function at Source Node Locations")
+f_vom_i_o_vals = f_vom_i_o.dat.data_ro
+vom_i_o_coords = vom_dest_node_coords_in_src_mesh.input_ordering.coordinates.dat.data_ro
+dest_node_coords_in_dest_mesh_plot.visible = False
+dest_node_coords_point_evals_in_dest_mesh_plot = ax_dest_mesh.scatter3D(vom_i_o_coords[:, 0], vom_i_o_coords[:, 1], vom_i_o_coords[:, 2], c=f_vom_i_o_vals)
+fig_dest_mesh.savefig("8_dest_mesh_w_f_vom_i_o.svg")
+
+f_dest_2 = Function(V_dest)
+f_dest_2.dat.data_wo[:] = f_vom_i_o.dat.data_ro[:]
+assert np.array_equal(f_dest_2.dat.data_ro, f_vom_i_o.dat.data_ro)
+f_dest_plot.visible = False
+f_dest_2_plot = trisurf(f_dest_2, axes=ax_dest_func)
+fig_dest_func.savefig("9_f_dest_2.svg")
+
+# plt.show()
