@@ -14,13 +14,13 @@ f_src = Function(V_src).interpolate(expr_src)
 # 3
 dest_mesh = UnitIcosahedralSphereMesh(1, name="dest_sphere")
 
-# 5 and 6
+# 4 and 5
 V_dest = FunctionSpace(dest_mesh, "CG", 2)
 V_dest_vec = VectorFunctionSpace(dest_mesh, V_dest.ufl_element())
 f_dest_node_coords = interpolate(dest_mesh.coordinates, V_dest_vec)
 dest_node_coords = f_dest_node_coords.dat.data_ro
 
-# 7
+# 6
 vom_dest_node_coords_in_src_mesh = VertexOnlyMesh(
                 src_mesh,
                 dest_node_coords,
@@ -30,15 +30,14 @@ vom_dest_node_coords_in_src_mesh = VertexOnlyMesh(
 P0DG_vom = FunctionSpace(vom_dest_node_coords_in_src_mesh, "DG", 0)
 f_vom = Function(P0DG_vom).interpolate(f_src)
 
-# 8
+# 7
 P0DG_vom_i_o = FunctionSpace(vom_dest_node_coords_in_src_mesh.input_ordering, "DG", 0)
 f_vom_i_o = Function(P0DG_vom_i_o).interpolate(f_vom)
 
-# 9
+# 8
 f_dest_2 = Function(V_dest)
 f_dest_2.dat.data_wo[:] = f_vom_i_o.dat.data_ro[:]
 
-# 4
 f_dest = Function(V_dest).interpolate(f_src)
 assert np.array_equal(f_dest_2.dat.data_ro, f_vom_i_o.dat.data_ro)
 
@@ -63,42 +62,37 @@ ax_dest_mesh.set_title("Destination Mesh")
 dest_mesh_plt = triplot(dest_mesh, axes=ax_dest_mesh)
 fig_dest_mesh.savefig("3_dest_mesh.svg")
 
-# Plot 5
+# Plot 4
 ax_dest_mesh.set_title("Destination Mesh with Source Node Locations")
 dest_node_coords_in_dest_mesh_plot = ax_dest_mesh.scatter3D(dest_node_coords[:, 0], dest_node_coords[:, 1], dest_node_coords[:, 2], c='b')
-fig_dest_mesh.savefig("5_dest_mesh_w_src_nodes.svg")
+fig_dest_mesh.savefig("4_dest_mesh_w_src_nodes.svg")
 
-# Plot 6
+# Plot 5
 ax_src_func.set_title("Source Function with Source Node Locations")
 dest_node_coords_in_f_src_plot = ax_src_func.scatter3D(dest_node_coords[:, 0], dest_node_coords[:, 1], dest_node_coords[:, 2], c='b')
-fig_src_func.savefig("6_f_src_w_src_nodes.svg")
+fig_src_func.savefig("5_f_src_w_src_nodes.svg")
 
-# Plot 7
+# Plot 6
 ax_src_func.set_title("Source Function with Point Evaluations at Source Node Locations")
 dest_node_coords_in_f_src_plot.visible = False
 vom_coords = vom_dest_node_coords_in_src_mesh.coordinates.dat.data_ro
 f_vom_vals = f_vom.dat.data_ro
 dest_node_coords_point_evals_in_f_src_plot = ax_src_func.scatter3D(vom_coords[:, 0], vom_coords[:, 1], vom_coords[:, 2], c=f_vom_vals)
-fig_src_func.savefig("7_f_src_and_f_vom.svg")
+fig_src_func.savefig("6_f_src_and_f_vom.svg")
 
-# Plot 8
+# Plot 7
 ax_dest_mesh.set_title("Destination Mesh with Point Evaluations of Source Function at Source Node Locations")
 f_vom_i_o_vals = f_vom_i_o.dat.data_ro
 vom_i_o_coords = vom_dest_node_coords_in_src_mesh.input_ordering.coordinates.dat.data_ro
 dest_node_coords_in_dest_mesh_plot.visible = False
 dest_node_coords_point_evals_in_dest_mesh_plot = ax_dest_mesh.scatter3D(vom_i_o_coords[:, 0], vom_i_o_coords[:, 1], vom_i_o_coords[:, 2], c=f_vom_i_o_vals)
-fig_dest_mesh.savefig("8_dest_mesh_w_f_vom_i_o.svg")
+fig_dest_mesh.savefig("7_dest_mesh_w_f_vom_i_o.svg")
 
-# Plot 9
+# Plot 8
 fig_dest_func = plt.figure()
 ax_dest_func = fig_dest_func.add_subplot(projection='3d')
 ax_dest_func.set_title("Destination Function")
 f_dest_plot = trisurf(f_dest_2, axes=ax_dest_func)
-fig_dest_func.savefig("9_f_dest_2.svg")
-
-# Plot 4
-f_dest_plot.visible = False
-f_dest_plot_2 = trisurf(f_dest, axes=ax_dest_func)
-fig_dest_func.savefig("4_f_dest.svg")
+fig_dest_func.savefig("8_f_dest.svg")
 
 # plt.show()
