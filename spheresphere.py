@@ -95,6 +95,17 @@ if src_mesh.comm.size == 1:
     )
     fig_src_func.savefig("6_f_src_and_f_vom.svg")
 
+    # Plot 6.5
+    fig_vom_mesh = plt.figure()
+    ax_vom_mesh = fig_vom_mesh.add_subplot(projection="3d")
+    ax_vom_mesh.set_title(
+        "Source Function Point Evaluations\n(Function on Vertex-Only Mesh)"
+    )
+    vom_mesh_plot = ax_vom_mesh.scatter3D(
+        vom_coords[:, 0], vom_coords[:, 1], vom_coords[:, 2], c=f_vom_vals
+    )
+    fig_vom_mesh.savefig("6_5_f_vom.svg")
+
     # Plot 7
     ax_dest_mesh.set_title(
         "Destination Mesh with Point Evaluations \nat Destination Node Locations"
