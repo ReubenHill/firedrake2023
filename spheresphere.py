@@ -42,6 +42,7 @@ f_dest_2.dat.data_wo[:] = f_vom_i_o.dat.data_ro[:]  # Now safe
 f_dest = Function(V_dest).interpolate(f_src)
 assert np.array_equal(f_dest_2.dat.data_ro, f_vom_i_o.dat.data_ro)
 
+cofunc_dest = assemble(inner(f_dest, TestFunction(V_dest)) * dx)
 cofunc_src = Interpolator(TestFunction(V_src), V_dest).interpolate(
     cofunc_dest, transpose=True
 )
